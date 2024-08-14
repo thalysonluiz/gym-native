@@ -1,4 +1,4 @@
-import { Image, Text, View } from "react-native";
+import { Image, ScrollView, Text, View } from "react-native";
 
 import BackgroundImg from '@assets/background.png'
 import LogoSvg from '@assets/logo.svg'
@@ -7,7 +7,8 @@ import { Button } from "@components/Button";
 
 export function SignIn() {
   return (
-    <View className="flex-1 items-center bg-gray-700 px-10">
+    <ScrollView contentContainerStyle={{flexGrow: 1}} showsVerticalScrollIndicator={false}>
+    <View className="flex-1 items-center bg-gray-700 px-10 pb-16">
       <Image 
         source={BackgroundImg} 
         className="absolute top-0" 
@@ -29,7 +30,11 @@ export function SignIn() {
         secureTextEntry
       />
       <Button title="Acessar" />
-      <Button title="Criar Conta" variant="outline" />
+      <View className="mt-24 w-full items-center">
+        <Text className="text-gray-100 text-sm mb-3 font-body">Ainda não tem acesso?</Text>
+        <Button title="Criar Conta" variant="outline" />
+      </View>
     </View>
+    </ScrollView>
   )
 }
