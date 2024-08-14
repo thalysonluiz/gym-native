@@ -1,12 +1,18 @@
-import { SignIn } from "@screens/SignIn";
 import "./src/styles/global.css"
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StatusBar } from 'react-native';
+import { 
+  useFonts, 
+  Roboto_400Regular,
+  Roboto_700Bold
+} from '@expo-google-fonts/roboto';
+import { SignIn } from "@screens/SignIn";
 
 export default function App() {
+  const [fontsLoaded] = useFonts({Roboto_400Regular, Roboto_700Bold})
+  
   return (
     <>
-      <StatusBar style="auto" />
+      <StatusBar backgroundColor='transparent' barStyle='light-content' translucent />
       <SignIn />
     </>
   );
