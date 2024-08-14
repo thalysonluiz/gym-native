@@ -8,7 +8,7 @@ import { Button } from "@components/Button";
 export function SignUp() {
   return (
     <ScrollView contentContainerStyle={{flexGrow: 1}} showsVerticalScrollIndicator={false}>
-    <View className="flex-1 items-center bg-gray-700 px-10 pb-16">
+    <View className="flex-1 items-center px-10 pb-16">
       <Image 
         source={BackgroundImg} 
         className="absolute top-0" 
