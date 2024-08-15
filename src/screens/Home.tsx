@@ -6,6 +6,7 @@ import { ExerciseCard } from "@components/ExerciseCard";
 
 export function Home() {
   const [groups, setGroups] = useState(['costa', 'bíceps', 'tríceps', 'ombro'])
+  const [exercises, setExercises] = useState(['costa', 'bíceps', 'tríceps', 'ombro'])
   const [groupSelected, setGroupSelected] = useState('costa')
 
   return (
@@ -32,10 +33,19 @@ export function Home() {
             Exercícios
           </Text>
           <Text className="text-gray-200 font-heading text-sm">
-            4
+            {exercises.length}
           </Text>
         </View>
-        <ExerciseCard />
+
+        <FlatList
+          data={exercises}
+          keyExtractor={item => item}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => 
+            <ExerciseCard />
+          }
+          contentContainerClassName="pb-20"
+        />
       </View>
       
     </View>
