@@ -11,19 +11,31 @@ export function Home() {
     <View className="flex-1">
       <HomeHeader />
 
-      
-      <View className="flex-row">
-        <Group 
-          name="costa" 
-          isActive={groupSelected === 'costa'}
-          onPress={() => setGroupSelected('costa')}
-        />
-        <Group 
-          name="ombro" 
-          isActive={groupSelected === 'ombro'} 
-          onPress={() => setGroupSelected('ombro')}
-        />
+      <FlatList 
+        data={groups}
+        keyExtractor={item => item}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        renderItem={({ item }) => <Group 
+          name={item}
+          isActive={groupSelected === item}
+          onPress={() => setGroupSelected(item)}
+        />}
+        contentContainerClassName="px-8"
+        className="my-10 max-h-10"
+      />
+      <View className="flex-1 px-8">
+
+        <View className="flex-row justify-between mb-5">
+          <Text className="text-gray-200 font-heading text-base">
+            Exercícios
+          </Text>
+          <Text className="text-gray-200 font-heading text-sm">
+            4
+          </Text>
+        </View>
       </View>
+      
     </View>
   )
 }
