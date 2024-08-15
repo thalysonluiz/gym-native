@@ -1,5 +1,7 @@
-import { Text, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
+import { MaterialIcons } from '@expo/vector-icons'
 import { UserPhoto } from "./UserPhoto";
+import { colors } from "@/styles/colors";
 
 export function HomeHeader(){
   return (
@@ -11,10 +13,13 @@ export function HomeHeader(){
         }}
         alt="foto pessoal"
       />
-      <View>
-      <Text className="text-gray-100 text-base">Olá,</Text>
-      <Text className="text-gray-100 font-heading text-xl">Thalyson</Text>
+      <View className="flex-1">
+        <Text className="text-gray-100 text-base">Olá,</Text>
+        <Text className="text-gray-100 font-heading text-xl">Thalyson</Text>
       </View>
+      <TouchableOpacity>
+        <MaterialIcons name="logout" size={28} color={colors.gray[200]} />
+      </TouchableOpacity>
     </View>
   )
 }
