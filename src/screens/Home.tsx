@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Group } from "@components/Group";
 import { HomeHeader } from "@components/HomeHeader";
 import { FlatList, Text, View } from "react-native";
+import { ExerciseCard } from "@components/ExerciseCard";
 
 export function Home() {
   const [groups, setGroups] = useState(['costa', 'bíceps', 'tríceps', 'ombro'])
@@ -34,6 +35,7 @@ export function Home() {
             4
           </Text>
         </View>
+        <ExerciseCard />
       </View>
       
     </View>
