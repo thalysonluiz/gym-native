@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import * as ImagePicker from "expo-image-picker"
+import Toast from 'react-native-toast-message';
 
 import { Button } from "@components/Button";
 import { Input } from "@components/Input";
@@ -24,7 +25,11 @@ export function Profile() {
 
       if (!photoSelected.canceled) {    
         if(photoSelected.assets[0].fileSize && (photoSelected.assets[0].fileSize / 1024 / 1024) > 5) {
-          Alert.alert('A imagem não pode ser enviada. O tamanho máximo é 5MB.')
+          Toast.show({
+            type: 'error',
+            text1: 'Imagem não atualizada',
+            text2: 'Maior que 5mb'
+          });
           return
         }
         setUserPhoto(photoSelected.assets[0].uri)        
