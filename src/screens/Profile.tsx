@@ -1,13 +1,42 @@
+import { useState } from "react";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import * as ImagePicker from "expo-image-picker"
+
 import { Button } from "@components/Button";
 import { Input } from "@components/Input";
 import { ScreenHeader } from "@components/ScreenHeader";
 import { UserPhoto } from "@components/UserPhoto";
-import { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 
 const PHOTO_SIZE = 130
 export function Profile() {
   const [photoIsLoading, setPhotoIsLoading] = useState(false)
+  const [userPhoto, setUserPhoto] = useState('https://github.com/thalysonluiz.png')
+
+  async function handleUserPhotoSelect(){
+    setPhotoIsLoading(true)
+    try {
+      const photoSelected = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.8,
+        aspect: [4, 4],
+        allowsEditing: true,
+      })
+
+      if (!photoSelected.canceled) {    
+        if(photoSelected.assets[0].fileSize && (photoSelected.assets[0].fileSize / 1024 / 1024) > 5) {
+          Alert.alert('A imagem não pode ser enviada. O tamanho máximo é 5MB.')
+          return
+        }
+        setUserPhoto(photoSelected.assets[0].uri)        
+      }
+
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setPhotoIsLoading(false)
+    }
+
+  }
 
   return (
     <View className="flex-1">
@@ -17,11 +46,11 @@ export function Profile() {
           <UserPhoto 
             size={PHOTO_SIZE} 
             source={{
-              uri: 'https://github.com/thalysonluiz.png', 
+              uri: userPhoto, 
             }}
             alt="foto pessoal"
           />
-          <TouchableOpacity >
+          <TouchableOpacity onPress={handleUserPhotoSelect}>
             <Text className="text-green-500 font-heading mt-2 mb-8">
               Alterar foto
             </Text>
