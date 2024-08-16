@@ -12,7 +12,7 @@ export function ExerciseCard({...rest}: Props){
           source={{uri: "https://www.oxerbrasil.com.br/wp-content/uploads/2022/07/mulher-se-exercitando-lrQPTQs7nQQ-unsplash.jpg"}}   
           alt="Imagem exercicio"   
           className="w-16 h-16 rounded-md mr-4"  
-          resizeMode="center"
+          resizeMode="cover"
         />
         <View className="flex-1">
           <Text className="text-white text-lg font-heading">Remada</Text>
