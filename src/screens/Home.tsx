@@ -3,11 +3,19 @@ import { Group } from "@components/Group";
 import { HomeHeader } from "@components/HomeHeader";
 import { FlatList, Text, View } from "react-native";
 import { ExerciseCard } from "@components/ExerciseCard";
+import { useNavigation } from "@react-navigation/native";
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
 export function Home() {
   const [groups, setGroups] = useState(['costa', 'bíceps', 'tríceps', 'ombro'])
   const [exercises, setExercises] = useState(['costa', 'bíceps', 'tríceps', 'ombro'])
   const [groupSelected, setGroupSelected] = useState('costa')
+
+  const navigation = useNavigation<AppNavigatorRoutesProps>()
+
+  function handleOpenExerciseDetails(){
+    navigation.navigate('exercise')
+  }
 
   return (
     <View className="flex-1">
@@ -42,7 +50,7 @@ export function Home() {
           keyExtractor={item => item}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => 
-            <ExerciseCard />
+            <ExerciseCard onPress={handleOpenExerciseDetails} />
           }
           contentContainerClassName="pb-20"
         />
