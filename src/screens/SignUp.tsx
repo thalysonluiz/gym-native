@@ -3,6 +3,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { api } from "@services/api";
 
 import BackgroundImg from '@assets/background.png'
 import LogoSvg from '@assets/logo.svg'
@@ -42,8 +43,8 @@ export function SignUp() {
     navigation.goBack()
   }
 
-  function handleSignUp(data: FormDataProps){
-    console.log(data)
+  async function handleSignUp({name, email, password}: FormDataProps){
+    const response = await api.post('/users', {name, email, password})
   }
 
   return (
