@@ -1,8 +1,8 @@
+import { View } from "react-native";
 import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { AuthRoutes } from "./auth.routes";
-import { colors } from "@/styles/colors";
-import { View } from "react-native";
 import { AppRoutes } from "./app.routes";
+import { colors } from "@/styles/colors";
 
 export function Routes(){
   const theme = DefaultTheme
@@ -11,7 +11,7 @@ export function Routes(){
   return (
     <View className="flex-1 bg-gray-700">
       <NavigationContainer theme={theme}>
-        <AppRoutes />
+        <AuthRoutes />
       </NavigationContainer>
     </View>
   )
