@@ -20,8 +20,6 @@ export function SignUp() {
   const { control, 
     handleSubmit,
     formState: { errors },
-    setValue,
-    getValues
   } = useForm<FormDataProps>()
 
   function handleLogin(){
@@ -58,12 +56,9 @@ export function SignUp() {
             placeholder='Nome' 
             onChangeText={onChange}
             value={value}
+            errorMessage={errors.name?.message}
           />
         ) } />
-
-        <Text className="text-white">
-          {errors.name?.message}
-        </Text>
 
       <Controller
         control={control}
@@ -82,6 +77,7 @@ export function SignUp() {
             autoCapitalize="none"
             onChangeText={onChange}
             value={value}
+            errorMessage={errors.email?.message}
           />
         ) } />
       
