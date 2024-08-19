@@ -1,6 +1,8 @@
 import { Image, ScrollView, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 
 import BackgroundImg from '@assets/background.png'
 import LogoSvg from '@assets/logo.svg'
@@ -14,19 +16,35 @@ type FormDataProps = {
   password_confirm: string;
 }
 
+const FormValidationSchema = z.object({
+  name: z.string({message: "Nome é obrigatório"}).min(3, {message: "Nome mínima de 3 caracteres"}),
+  email: z.string({message: "E-mail é obrigatório"}).email({message: "E-mail inválido"}),
+  password: z.string({message: "Senha é obrigatória"}).min(6, {message: "Senha mínima de 6 caracteres"}),
+  password_confirm: z.string({message: "Confirmação de Senha obrigatória"}),
+})
+.refine(({ password_confirm, password }) => password === password_confirm, {
+    message: "Senhas não conferem",
+    path: ["password_confirm"]
+  }  
+);
+
 export function SignUp() {
   const navigation = useNavigation()
 
   const { control, 
     handleSubmit,
     formState: { errors },
-  } = useForm<FormDataProps>()
+  } = useForm<FormDataProps>({
+    resolver: zodResolver(FormValidationSchema),
+  })
 
   function handleLogin(){
     navigation.goBack()
   }
 
-  function handleSignUp(data: FormDataProps){}
+  function handleSignUp(data: FormDataProps){
+    console.log(data)
+  }
 
   return (
     <ScrollView contentContainerStyle={{flexGrow: 1}} showsVerticalScrollIndicator={false}>
@@ -47,10 +65,6 @@ export function SignUp() {
       <Controller
         control={control}
         name="name"
-        rules={{
-          required: "O nome é obrigatório",
-          minLength: { value: 3, message: "O nome precisa ter pelo menos 3 caracteres" },
-        }}
         render={({field: {onChange, value }}) => (
           <Input 
             placeholder='Nome' 
@@ -63,13 +77,6 @@ export function SignUp() {
       <Controller
         control={control}
         name="email"
-        rules={{
-          required: "O e-mail é obrigatório",
-          pattern: {
-            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-            message: "E-mail inválido"
-          },
-        }}
         render={({field: {onChange, value }}) => (
           <Input 
             placeholder='E-mail' 
@@ -86,11 +93,12 @@ export function SignUp() {
         name="password"
         render={({field: {onChange, value }}) => (
           <Input 
-        placeholder='Senha'
-        secureTextEntry
-        onChangeText={onChange}
-        value={value}
-      />
+            placeholder='Senha'
+            secureTextEntry
+            onChangeText={onChange}
+            value={value}            
+            errorMessage={errors.password?.message}
+          />
         ) } />
       <Controller
         control={control}
@@ -103,6 +111,7 @@ export function SignUp() {
             value={value}
             onSubmitEditing={handleSubmit(handleSignUp)}
             returnKeyType="send"
+            errorMessage={errors.password_confirm?.message}
           />
         ) } />
       
