@@ -38,8 +38,6 @@ export function SignIn() {
       const title = isAppError ? error.message : 'Não foi possível entrar. Tente novamente mais tarde.'
 
       Alert.alert(title)
-    }
-    finally {
       setIsLoading(false)
     }
   }
