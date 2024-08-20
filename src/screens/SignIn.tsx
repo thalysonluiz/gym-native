@@ -1,4 +1,4 @@
-import { Image, ScrollView, Text, View } from "react-native";
+import { Alert, Image, ScrollView, Text, View } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigation } from "@react-navigation/native";
 
@@ -10,6 +10,8 @@ import { Button } from "@components/Button";
 
 import BackgroundImg from '@assets/background.png'
 import LogoSvg from '@assets/logo.svg'
+import { AppError } from "@utils/AppError";
+import { useState } from "react";
 
 type FormDataProps = {
   email: string;
@@ -17,6 +19,7 @@ type FormDataProps = {
 }
 
 export function SignIn() {
+  const [isLoading, setIsLoading] = useState(false)
   const navigation = useNavigation<AuthNavigatorRoutesProps>()
   const {signIn} = useAuth()
 
@@ -25,8 +28,20 @@ export function SignIn() {
     formState: { errors },
   } = useForm<FormDataProps>()
 
-  function handleSignIn({email, password}: FormDataProps){
-    signIn(email, password)
+  async function handleSignIn({email, password}: FormDataProps){
+    try {
+      setIsLoading(true)
+      await signIn(email, password)
+      
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const title = isAppError ? error.message : 'Não foi possível entrar. Tente novamente mais tarde.'
+
+      Alert.alert(title)
+    }
+    finally {
+      setIsLoading(false)
+    }
   }
 
   function handleNewAccount(){
@@ -84,7 +99,11 @@ export function SignIn() {
         )}
       />
 
-      <Button title="Acessar" onPress={handleSubmit(handleSignIn)} />
+      <Button 
+        title="Acessar" 
+        onPress={handleSubmit(handleSignIn)} 
+        isLoading={isLoading}
+      />
       <View className="mt-24 w-full items-center">
         <Text className="text-gray-100 text-sm mb-3 font-body">Ainda não tem acesso?</Text>
         <Button title="Criar Conta" variant="outline" onPress={handleNewAccount} />
