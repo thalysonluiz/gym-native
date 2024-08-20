@@ -7,6 +7,7 @@ interface AuthProviderProps {
 
 export type AuthContextDataProps = {
   user: UserDTO;
+  signIn: (email: string, password: string) => void;
 }
 
 export const AuthContext = createContext({} as AuthContextDataProps);
@@ -19,9 +20,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     avatar: 'https://example.com/photo.jpg'
   })
 
+  function signIn(email: string, password: string) {
+    console.log('signing in')
+  }
+
 	return (
 		<AuthContext.Provider value={{
-      user
+      user,
+      signIn
 		}}>
 			{children}
 		</AuthContext.Provider>

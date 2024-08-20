@@ -6,9 +6,15 @@ import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 import { useNavigation } from "@react-navigation/native";
 import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
+import { useAuth } from "@hooks/useAuth";
 
 export function SignIn() {
   const navigation = useNavigation<AuthNavigatorRoutesProps>()
+  const {signIn} = useAuth()
+
+  function handleLogin(email: string, password: string){
+    signIn(email, password)
+  }
 
   function handleNewAccount(){
     navigation.navigate('signUp')
