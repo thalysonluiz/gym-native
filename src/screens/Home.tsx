@@ -1,17 +1,18 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Group } from "@components/Group";
 import { HomeHeader } from "@components/HomeHeader";
 import { FlatList, Text, View } from "react-native";
 import { ExerciseCard } from "@components/ExerciseCard";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
 import { AppError } from "@utils/AppError";
 import { api } from "@services/api";
+import { ExerciseDTO } from "@dtos/ExerciseDTO";
 
 export function Home() {
   const [groups, setGroups] = useState<string[]>([])
-  const [exercises, setExercises] = useState(['costa', 'bíceps', 'tríceps', 'ombro'])
-  const [groupSelected, setGroupSelected] = useState('costa')
+  const [exercises, setExercises] = useState<ExerciseDTO[]>([])
+  const [groupSelected, setGroupSelected] = useState('costas')
 
   const navigation = useNavigation<AppNavigatorRoutesProps>()
 
@@ -30,9 +31,23 @@ export function Home() {
     }
   }
 
+  async function fetchExercisesByGroup(){
+    try {
+      const {data} = await api.get(`/exercises/bygroup/${groupSelected}`)
+      setExercises(data)
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const title = isAppError? error.message : 'Não foi possível carregar os exercícios. Tente novamente mais tarde.'
+    }
+  }
+
   useEffect(() => {
     fetchGroups()
   }, [])
+
+  useFocusEffect(useCallback(() => {
+    fetchExercisesByGroup()
+  }, [groupSelected]))
 
   return (
     <View className="flex-1">
@@ -64,10 +79,10 @@ export function Home() {
 
         <FlatList
           data={exercises}
-          keyExtractor={item => item}
+          keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => 
-            <ExerciseCard onPress={handleOpenExerciseDetails} />
+            <ExerciseCard data={item} onPress={handleOpenExerciseDetails} />
           }
           contentContainerClassName="pb-20"
         />
