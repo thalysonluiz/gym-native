@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Alert, Image, ScrollView, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useForm, Controller } from "react-hook-form";
@@ -10,6 +11,7 @@ import LogoSvg from '@assets/logo.svg'
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 import { AppError } from "@utils/AppError";
+import { useAuth } from "@hooks/useAuth";
 
 type FormDataProps = {
   name: string;
@@ -31,6 +33,9 @@ const FormValidationSchema = z.object({
 );
 
 export function SignUp() {
+  const [isLoading, setIsLoading] = useState(false)
+  const { signIn } = useAuth()
+
   const navigation = useNavigation()
 
   const { control, 
@@ -46,13 +51,16 @@ export function SignUp() {
 
   async function handleSignUp({name, email, password}: FormDataProps){
     try {
+      setIsLoading(true)
       const response = await api.post('/users', {name, email, password})
+      await signIn(email,password)
       
     } catch (error) {
       const isAppError = error instanceof AppError
       const title = isAppError ? error.message : 'Não foi possível criar a conta. Tente novamente mais tarde.'
 
       Alert.alert(title)
+      setIsLoading(false)
     }
   }
 
@@ -126,7 +134,7 @@ export function SignUp() {
         ) } />
       
       
-      <Button title="Criar e acessar" onPress={handleSubmit(handleSignUp)} />
+      <Button title="Criar e acessar" isLoading={isLoading} onPress={handleSubmit(handleSignUp)} />
       <View className="mt-24 w-full items-center">
         
         <Button title="Voltar para login" variant="outline" onPress={handleLogin} />
