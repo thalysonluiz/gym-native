@@ -8,16 +8,18 @@ import { AppNavigatorRoutesProps } from "@routes/app.routes";
 import { AppError } from "@utils/AppError";
 import { api } from "@services/api";
 import { ExerciseDTO } from "@dtos/ExerciseDTO";
+import { Loading } from "@components/Loading";
 
 export function Home() {
+  const [isLoading, setIsLoading] = useState(true)
   const [groups, setGroups] = useState<string[]>([])
   const [exercises, setExercises] = useState<ExerciseDTO[]>([])
   const [groupSelected, setGroupSelected] = useState('costas')
 
   const navigation = useNavigation<AppNavigatorRoutesProps>()
 
-  function handleOpenExerciseDetails(){
-    navigation.navigate('exercise')
+  function handleOpenExerciseDetails(exerciseId: string){
+    navigation.navigate('exercise', {exerciseId})
   }
 
   async function fetchGroups(){
@@ -33,11 +35,15 @@ export function Home() {
 
   async function fetchExercisesByGroup(){
     try {
+      setIsLoading(true)
       const {data} = await api.get(`/exercises/bygroup/${groupSelected}`)
       setExercises(data)
     } catch (error) {
       const isAppError = error instanceof AppError
       const title = isAppError? error.message : 'Não foi possível carregar os exercícios. Tente novamente mais tarde.'
+    }
+    finally {
+      setIsLoading(false)
     }
   }
 
@@ -66,28 +72,29 @@ export function Home() {
         contentContainerClassName="px-8"
         className="my-10 max-h-10"
       />
-      <View className="flex-1 px-8">
+      { isLoading ? <Loading /> :
+        <View className="flex-1 px-8">
 
-        <View className="flex-row justify-between mb-5">
-          <Text className="text-gray-200 font-heading text-base">
-            Exercícios
-          </Text>
-          <Text className="text-gray-200 font-heading text-sm">
-            {exercises.length}
-          </Text>
+          <View className="flex-row justify-between mb-5">
+            <Text className="text-gray-200 font-heading text-base">
+              Exercícios
+            </Text>
+            <Text className="text-gray-200 font-heading text-sm">
+              {exercises.length}
+            </Text>
+          </View>
+
+          <FlatList
+            data={exercises}
+            keyExtractor={item => item.id}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item }) => 
+              <ExerciseCard data={item} onPress={() => handleOpenExerciseDetails(item.id)} />
+            }
+            contentContainerClassName="pb-20"
+          />
         </View>
-
-        <FlatList
-          data={exercises}
-          keyExtractor={item => item.id}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => 
-            <ExerciseCard data={item} onPress={handleOpenExerciseDetails} />
-          }
-          contentContainerClassName="pb-20"
-        />
-      </View>
-      
+      }
     </View>
   )
 }
