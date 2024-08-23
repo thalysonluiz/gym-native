@@ -12,15 +12,18 @@ import { api } from "@services/api";
 import { useEffect, useState } from "react";
 import { ExerciseDTO } from "@dtos/ExerciseDTO";
 import { Loading } from "@components/Loading";
+import Toast from "react-native-toast-message";
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
 type RouteParams = {
   exerciseId: string,
 }
 
 export function Exercise() {
-  const [exercise, setExercise] = useState({} as ExerciseDTO)
   const [isLoading, setIsLoading] = useState(true)
-  const navigation = useNavigation()
+  const [sendingRegister, setSendingRegister] = useState(false)
+  const [exercise, setExercise] = useState({} as ExerciseDTO)
+  const navigation = useNavigation<AppNavigatorRoutesProps>()
 
   const route = useRoute()
   const { exerciseId } = route.params as RouteParams
@@ -39,6 +42,27 @@ export function Exercise() {
       const title = isAppError ? error.message : 'Não foi possível carregar os detalhes do exercício. Tente novamente mais tarde.'
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  async function handleExerciseHistoryRegister() {
+    try {
+      setSendingRegister(true)
+      await api.post('/history', { exercise_id: exerciseId})
+
+      Toast.show({
+        type: 'success',
+        text1: 'Parabéns 🎉',
+        text2: 'Exercício registrado no seu histórico',
+      });
+
+      navigation.navigate('history');
+
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const title = isAppError ? error.message : 'Não foi possível carregar os detalhes do exercício. Tente novamente mais tarde.'
+    } finally {
+      setSendingRegister(false)
     }
   }
 
@@ -91,7 +115,11 @@ export function Exercise() {
               </View>
 
             </View>
-              <Button title="Marcar como realizado" />
+              <Button 
+                title="Marcar como realizado" 
+                isLoading={sendingRegister}
+                onPress={handleExerciseHistoryRegister}
+              />
           </View>
         </View>
       }
