@@ -1,4 +1,4 @@
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Feather } from '@expo/vector-icons'
 import { colors } from "@/styles/colors";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -61,6 +61,7 @@ export function Exercise() {
     } catch (error) {
       const isAppError = error instanceof AppError
       const title = isAppError ? error.message : 'Não foi possível carregar os detalhes do exercício. Tente novamente mais tarde.'
+      Alert.alert(title)
     } finally {
       setSendingRegister(false)
     }
