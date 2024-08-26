@@ -37,7 +37,7 @@ export function History() {
       <SectionList 
         sections={exercises}
         keyExtractor={item => item.id}
-        renderItem={({item}) => <HistoryCard />}
+        renderItem={({item}) => <HistoryCard data={item} />}
         renderSectionHeader={({section}) => (
           <Text className="text-gray-200 text-base font-heading mt-10 mb-3">{section.title}</Text>
         )}
