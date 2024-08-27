@@ -21,7 +21,7 @@ type FormDataProps = {
 }
 
 const FormValidationSchema = z.object({
-  name: z.string({message: "Nome é obrigatório"}).min(3, {message: "Nome mínima de 3 caracteres"}),
+  name: z.string({message: "Nome é obrigatório"}).min(3, {message: "Nome mínimo de 3 caracteres"}),
   email: z.string({message: "E-mail é obrigatório"}).email({message: "E-mail inválido"}),
   password: z.string({message: "Senha é obrigatória"}).min(6, {message: "Senha mínima de 6 caracteres"}),
   password_confirm: z.string({message: "Confirmação de Senha obrigatória"}),

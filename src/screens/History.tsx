@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { SectionList, Text, View } from "react-native";
+import { Alert, SectionList, Text, View } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 
 import { api } from "@services/api";
@@ -21,6 +21,7 @@ export function History() {
     } catch (error) {
       const isAppError = error instanceof AppError
       const title = isAppError ? error.message : 'Não foi possível carregar o histórico.'
+      Alert.alert(title)
     } finally {
       setIsLoading(false)
     }

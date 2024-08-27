@@ -22,14 +22,34 @@ type FormDataProps = {
 }
 
 const FormValidationSchema = z.object({
-  password: z.string({message: "Senha é obrigatória"}).min(6, {message: "Senha mínima de 6 caracteres"}),
-  password_confirm: z.string({message: "Confirmação de Senha obrigatória"}),
+  name: z.string({message: "Nome é obrigatório"}).min(3, {message: "Nome mínimo de 3 caracteres"}),
+  password: z.string({message: "Senha é obrigatória"}).optional().transform(val => val !== undefined && val !== '' ? val : null),
+  password_confirm: z.string({message: "Confirmação de Senha obrigatória"}).optional().transform(val => val !== undefined && val !== '' ? val : null),
 })
-.refine(({ password_confirm, password }) => password === password_confirm, {
-    message: "Senhas não conferem",
-    path: ["password_confirm"]
-  }  
-);
+.superRefine(({password, password_confirm}, ctx) => {
+  if (password !== null && password.length < 6) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.too_small,
+      minimum: 6,
+      type: "string",
+      inclusive: true,
+      message: "Senha mínima de 6 caracteres",
+      path: ["password"],
+    });
+  }
+
+  if ((password !== null && password !== password_confirm) || (password_confirm !== null && password === null)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Senhas não conferem",
+      path: ["password_confirm"],
+    });
+  }
+});
+// .refine(({ password_confirm, password }) => password === password_confirm, {
+//   message: "Senhas não conferem",
+//   path: ["password_confirm"]
+// });
 
 const PHOTO_SIZE = 130
 export function Profile() {
@@ -79,6 +99,10 @@ export function Profile() {
 
   }
 
+  async function handleProfileUpdate(data: FormDataProps) {
+    console.log(data)
+  }
+
   return (
     <View className="flex-1">
       <ScreenHeader title="Perfil" />
@@ -106,6 +130,7 @@ export function Profile() {
                 placeholder="Nome" 
                 onChangeText={onChange}
                 value={value}
+                errorMessage={errors.name?.message}
               />
             )} 
           />
@@ -129,10 +154,46 @@ export function Profile() {
             <Text className="text-gray-200 font-heading text-base mb-2">
               Alterar senha
             </Text>
-            <Input style={{backgroundColor: '#202024'}} placeholder="Senha atual" secureTextEntry />
-            <Input style={{backgroundColor: '#202024'}} placeholder="Nova senha" secureTextEntry />
-            <Input style={{backgroundColor: '#202024'}} placeholder="Confirma nova senha" secureTextEntry />
-            <Button title="Atualizar" />
+            <Controller
+            control={control}
+            name="old_password"
+            render={({field: {onChange }}) => (
+              <Input 
+                style={{backgroundColor: '#202024'}} 
+                placeholder="Senha atual" 
+                onChangeText={onChange}
+                secureTextEntry 
+              />
+            )} 
+          />
+          <Controller
+            control={control}
+            name="password"
+            render={({field: {onChange }}) => (
+              <Input 
+                style={{backgroundColor: '#202024'}} 
+                placeholder="Nova senha" 
+                onChangeText={onChange}
+                secureTextEntry 
+                errorMessage={errors.password?.message}
+              />
+            )} 
+          />
+          <Controller
+            control={control}
+            name="password_confirm"
+            render={({field: {onChange }}) => (
+              <Input 
+              style={{backgroundColor: '#202024'}} 
+              placeholder="Confirma nova senha" 
+              onChangeText={onChange}
+              secureTextEntry 
+              errorMessage={errors.password_confirm?.message}
+            />
+            )} 
+          />
+            
+            <Button title="Atualizar" onPress={handleSubmit(handleProfileUpdate)} />
         </View>
       </ScrollView>
     </View>
