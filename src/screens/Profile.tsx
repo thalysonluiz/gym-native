@@ -12,6 +12,8 @@ import { Button } from "@components/Button";
 import { Input } from "@components/Input";
 import { ScreenHeader } from "@components/ScreenHeader";
 import { UserPhoto } from "@components/UserPhoto";
+import { api } from "@services/api";
+import { AppError } from "@utils/AppError";
 
 type FormDataProps = {
   name: string;
@@ -24,6 +26,7 @@ type FormDataProps = {
 const FormValidationSchema = z.object({
   name: z.string({message: "Nome é obrigatório"}).min(3, {message: "Nome mínimo de 3 caracteres"}),
   password: z.string({message: "Senha é obrigatória"}).optional().transform(val => val !== undefined && val !== '' ? val : null),
+  old_password: z.string({message: "Senha é obrigatória"}).optional().transform(val => val !== undefined && val !== '' ? val : null),
   password_confirm: z.string({message: "Confirmação de Senha obrigatória"}).optional().transform(val => val !== undefined && val !== '' ? val : null),
 })
 .superRefine(({password, password_confirm}, ctx) => {
@@ -46,17 +49,14 @@ const FormValidationSchema = z.object({
     });
   }
 });
-// .refine(({ password_confirm, password }) => password === password_confirm, {
-//   message: "Senhas não conferem",
-//   path: ["password_confirm"]
-// });
 
 const PHOTO_SIZE = 130
 export function Profile() {
+  const [isUpdating, setIsUpdating] = useState(false)
   const [photoIsLoading, setPhotoIsLoading] = useState(false)
   const [userPhoto, setUserPhoto] = useState('https://github.com/thalysonluiz.png')
 
-  const { user } = useAuth()
+  const { user, updateUserProfile } = useAuth()
 
   const { control, 
     handleSubmit,
@@ -88,9 +88,24 @@ export function Profile() {
           });
           return
         }
-        setUserPhoto(photoSelected.assets[0].uri)        
-      }
 
+        const fileExtension = photoSelected.assets[0].uri.split('.').pop()
+        
+        const photoFile = {
+          name: `${user.name}.${fileExtension}`.toLowerCase(),
+          uri: photoSelected.assets[0].uri,
+          type: `${photoSelected.assets[0].type}/${fileExtension}`
+        }  as any
+        
+        const userPhotoUploadForm = new FormData();
+        userPhotoUploadForm.append('avatar', photoFile)
+
+        await api.patch('/users/avatar', userPhotoUploadForm, {
+          headers: {
+            'Content-Type':'multipart/form-data',
+          }
+        })
+      }
     } catch (error) {
       console.log(error)
     } finally {
@@ -100,7 +115,26 @@ export function Profile() {
   }
 
   async function handleProfileUpdate(data: FormDataProps) {
-    console.log(data)
+    try {
+      setIsUpdating(true)
+      const userUpdated = user
+      userUpdated.name = data.name
+
+      await api.put(`/users`, data) 
+
+      await updateUserProfile(userUpdated)
+
+      Toast.show({
+        type: 'success',
+        text1: 'Perfil atualizado com sucesso!',
+      });
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const title = isAppError ? error.message : 'Não foi possível carregar os detalhes do exercício. Tente novamente mais tarde.'
+      Alert.alert(title)
+    } finally {
+      setIsUpdating(false)
+    }
   }
 
   return (
@@ -193,7 +227,11 @@ export function Profile() {
             )} 
           />
             
-            <Button title="Atualizar" onPress={handleSubmit(handleProfileUpdate)} />
+            <Button 
+              title="Atualizar" 
+              onPress={handleSubmit(handleProfileUpdate)} 
+              isLoading={isUpdating}
+            />
         </View>
       </ScrollView>
     </View>
