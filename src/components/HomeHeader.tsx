@@ -4,6 +4,7 @@ import { UserPhoto } from "./UserPhoto";
 import { colors } from "@/styles/colors";
 import { useAuth } from "@hooks/useAuth";
 
+import { api } from "@services/api";
 import defaultUserPhotoImg from "@assets/userPhotoDefault.png"
 
 export function HomeHeader(){
@@ -17,9 +18,11 @@ export function HomeHeader(){
     <View className="flex-row bg-gray-600 pt-16 pb-5 px-8 items-center">
       <UserPhoto 
         size={64} 
-        source={user.avatar ? {
-          uri: user.avatar, 
-        } : defaultUserPhotoImg}
+        source={
+          user.avatar 
+          ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}`, } 
+          : defaultUserPhotoImg
+        }
         alt="foto pessoal"
       />
       <View className="flex-1">

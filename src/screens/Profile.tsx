@@ -15,6 +15,8 @@ import { UserPhoto } from "@components/UserPhoto";
 import { api } from "@services/api";
 import { AppError } from "@utils/AppError";
 
+import defaultUserPhotoImg from "@assets/userPhotoDefault.png"
+
 type FormDataProps = {
   name: string;
   email: string;
@@ -54,7 +56,6 @@ const PHOTO_SIZE = 130
 export function Profile() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [photoIsLoading, setPhotoIsLoading] = useState(false)
-  const [userPhoto, setUserPhoto] = useState('https://github.com/thalysonluiz.png')
 
   const { user, updateUserProfile } = useAuth()
 
@@ -100,11 +101,15 @@ export function Profile() {
         const userPhotoUploadForm = new FormData();
         userPhotoUploadForm.append('avatar', photoFile)
 
-        await api.patch('/users/avatar', userPhotoUploadForm, {
+        const avatarUpdatedResponse = await api.patch('/users/avatar', userPhotoUploadForm, {
           headers: {
             'Content-Type':'multipart/form-data',
           }
         })
+
+        const userUpdated = user
+        userUpdated.avatar = avatarUpdatedResponse.data.avatar
+        updateUserProfile(userUpdated)
       }
     } catch (error) {
       console.log(error)
@@ -144,9 +149,11 @@ export function Profile() {
         <View className="justify-center items-center mt-6 px-10">
           <UserPhoto 
             size={PHOTO_SIZE} 
-            source={{
-              uri: userPhoto, 
-            }}
+            source={
+              user.avatar 
+              ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}`, } 
+              : defaultUserPhotoImg
+            }
             alt="foto pessoal"
           />
           <TouchableOpacity onPress={handleUserPhotoSelect}>
