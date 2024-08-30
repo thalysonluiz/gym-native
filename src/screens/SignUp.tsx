@@ -1,13 +1,17 @@
-import { Image, ScrollView, Text, View } from "react-native";
+import { useState } from "react";
+import { Alert, Image, ScrollView, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { api } from "@services/api";
 
 import BackgroundImg from '@assets/background.png'
 import LogoSvg from '@assets/logo.svg'
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
+import { AppError } from "@utils/AppError";
+import { useAuth } from "@hooks/useAuth";
 
 type FormDataProps = {
   name: string;
@@ -17,7 +21,7 @@ type FormDataProps = {
 }
 
 const FormValidationSchema = z.object({
-  name: z.string({message: "Nome é obrigatório"}).min(3, {message: "Nome mínima de 3 caracteres"}),
+  name: z.string({message: "Nome é obrigatório"}).min(3, {message: "Nome mínimo de 3 caracteres"}),
   email: z.string({message: "E-mail é obrigatório"}).email({message: "E-mail inválido"}),
   password: z.string({message: "Senha é obrigatória"}).min(6, {message: "Senha mínima de 6 caracteres"}),
   password_confirm: z.string({message: "Confirmação de Senha obrigatória"}),
@@ -29,6 +33,9 @@ const FormValidationSchema = z.object({
 );
 
 export function SignUp() {
+  const [isLoading, setIsLoading] = useState(false)
+  const { signIn } = useAuth()
+
   const navigation = useNavigation()
 
   const { control, 
@@ -42,8 +49,19 @@ export function SignUp() {
     navigation.goBack()
   }
 
-  function handleSignUp(data: FormDataProps){
-    console.log(data)
+  async function handleSignUp({name, email, password}: FormDataProps){
+    try {
+      setIsLoading(true)
+      const response = await api.post('/users', {name, email, password})
+      await signIn(email,password)
+      
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const title = isAppError ? error.message : 'Não foi possível criar a conta. Tente novamente mais tarde.'
+
+      Alert.alert(title)
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -116,7 +134,7 @@ export function SignUp() {
         ) } />
       
       
-      <Button title="Criar e acessar" onPress={handleSubmit(handleSignUp)} />
+      <Button title="Criar e acessar" isLoading={isLoading} onPress={handleSubmit(handleSignUp)} />
       <View className="mt-24 w-full items-center">
         
         <Button title="Voltar para login" variant="outline" onPress={handleLogin} />

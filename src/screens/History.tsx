@@ -1,19 +1,35 @@
+import { useCallback, useState } from "react";
+import { Alert, SectionList, Text, View } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+
+import { api } from "@services/api";
+
 import { HistoryCard } from "@components/HistoryCard";
 import { ScreenHeader } from "@components/ScreenHeader";
-import { useState } from "react";
-import { SectionList, Text, View } from "react-native";
+import { AppError } from "@utils/AppError";
+import { HistoryGroupByDayDTO } from "@dtos/HistoryGroupByDayDTO";
 
 export function History() {
-  const [exercises, setExercises] = useState([
-    {
-      title: "26.08.22",
-      data: ["puxada", "barra"]
-    },
-    {
-      title: "27.08.22",
-      data: ["puxada"]
+  const [isLoading, setIsLoading] = useState(true)
+  const [exercises, setExercises] = useState<HistoryGroupByDayDTO[]>([])
+
+  async function fetchExerciseHistory(){
+    try {
+      setIsLoading(true)
+      const { data } = await api.get(`/history`)
+      setExercises(data)
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const title = isAppError ? error.message : 'Não foi possível carregar o histórico.'
+      Alert.alert(title)
+    } finally {
+      setIsLoading(false)
     }
-  ])
+  }
+
+  useFocusEffect(useCallback(() => {
+    fetchExerciseHistory()
+  }, []))
 
   return (
     <View className="flex-1">
@@ -21,8 +37,8 @@ export function History() {
 
       <SectionList 
         sections={exercises}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({item}) => <HistoryCard />}
+        keyExtractor={item => item.id}
+        renderItem={({item}) => <HistoryCard data={item} />}
         renderSectionHeader={({section}) => (
           <Text className="text-gray-200 text-base font-heading mt-10 mb-3">{section.title}</Text>
         )}
